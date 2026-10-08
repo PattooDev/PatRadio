@@ -17,7 +17,15 @@ from PyQt6.QtWidgets import (
 )
 
 APP_NAME = 'PatRadio'
-CONFIG_DIR = Path(os.environ.get('XDG_CONFIG_HOME', Path.home() / '.config')) / 'patradio'
+def config_directory():
+    """Répertoire utilisateur adapté à chaque système, sans déplacer les favoris Linux."""
+    if sys.platform == 'win32':
+        base = os.environ.get('APPDATA')
+        return (Path(base) if base else Path.home() / 'AppData' / 'Roaming') / 'PatRadio'
+    return Path(os.environ.get('XDG_CONFIG_HOME', Path.home() / '.config')) / 'patradio'
+
+
+CONFIG_DIR = config_directory()
 CONFIG_FILE = CONFIG_DIR / 'favorites.json'
 STATIONS = [
     {'id': 'twente', 'name': 'WebSDR Twente', 'category': 'Radioamateurs', 'detail': 'Ondes courtes · Récepteur aux Pays-Bas', 'url': 'http://websdr.ewi.utwente.nl:8901/'},
@@ -70,7 +78,7 @@ class PatRadio(QMainWindow):
         super().__init__()
         self.favorites = load_favorites()
         self.visible_stations = []
-        self.setWindowTitle('PatRadio v0.2 — Centre d’écoute mondial')
+        self.setWindowTitle('PatRadio v0.3 — Centre d’écoute mondial')
         self.resize(860, 630)
         self.setMinimumSize(650, 490)
         container = QWidget()
@@ -82,7 +90,7 @@ class PatRadio(QMainWindow):
         title = QLabel('📻  PatRadio')
         title.setObjectName('title')
         root.addWidget(title)
-        subtitle = QLabel('Ton centre d’écoute mondial · Deepin Linux · 100 % gratuit')
+        subtitle = QLabel('Ton centre d’écoute mondial · Linux / Windows / macOS · 100 % gratuit')
         subtitle.setObjectName('subtitle')
         root.addWidget(subtitle)
 
@@ -109,7 +117,7 @@ class PatRadio(QMainWindow):
         root.addWidget(self.detail)
 
         actions = QHBoxLayout()
-        self.open_button = QPushButton('▶  Ouvrir dans Firefox')
+        self.open_button = QPushButton('▶  Ouvrir dans le navigateur')
         self.open_button.setObjectName('primary')
         self.open_button.clicked.connect(self.open_selected)
         actions.addWidget(self.open_button)
@@ -197,7 +205,7 @@ class PatRadio(QMainWindow):
         if urlparse(url).scheme not in ('http', 'https'):
             QMessageBox.warning(self, 'PatRadio', 'Adresse non prise en charge.')
             return
-        # Le navigateur par défaut de Deepin est utilisé (Firefox s'il est défini par défaut).
+        # Utilise le navigateur par défaut de Windows, Linux ou macOS.
         if not QDesktopServices.openUrl(QUrl(url)):
             QMessageBox.warning(self, 'PatRadio', 'Ouverture impossible. Vérifie le navigateur par défaut.')
         else:
