@@ -1,0 +1,35 @@
+name: Construire PatRadio Windows
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Installer les dépendances
+        run: python -m pip install --upgrade pip PyQt6 pyinstaller
+      - name: Construire PatRadio.exe
+        run: python -m PyInstaller --clean --noconfirm --onefile --windowed --name PatRadio patradio/app.py
+      - name: Vérifier le fichier produit
+        shell: pwsh
+        run: |
+          if (!(Test-Path "dist/PatRadio.exe")) { throw "PatRadio.exe absent" }
+          Get-Item "dist/PatRadio.exe" | Select-Object Name,Length
+      - name: Publier le téléchargement
+        uses: actions/upload-artifact@v4
+        with:
+          name: PatRadio-Windows-EXE
+          path: dist/PatRadio.exe
+          if-no-files-found: error
