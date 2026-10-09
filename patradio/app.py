@@ -37,8 +37,9 @@ STATIONS = [
     {'id': 'twente7120', 'name': 'Twente · 7 120 kHz LSB', 'category': 'Radioamateurs', 'detail': 'Fréquence testée · voix en LSB', 'url': 'http://websdr.ewi.utwente.nl:8901/?tune=7120lsb'},
     {'id': 'twente14200', 'name': 'Twente · 14 200 kHz USB', 'category': 'Radioamateurs', 'detail': 'Bande des 20 mètres · USB', 'url': 'http://websdr.ewi.utwente.nl:8901/?tune=14200usb'},
     {'id': 'websdr', 'name': 'Annuaire WebSDR', 'category': 'Radioamateurs', 'detail': 'Récepteurs publics disponibles dans le monde', 'url': 'https://www.websdr.org/'},
-    {'id': 'radiosondy-meb801267', 'name': 'Radiosondy · Sonde MEB801267', 'category': 'Suivi météo', 'detail': 'Fiche de suivi d’une radiosonde météorologique · informations variables selon les données disponibles', 'url': 'https://radiosondy.info/sonde.php?sondenumber=MEB801267'},
-    {'id': 'radiosondy-global', 'name': 'Radiosondy · Carte mondiale', 'category': 'Suivi météo', 'detail': 'Suivi des ballons-sondes météorologiques et recherche par numéro de sonde', 'url': 'https://radiosondy.info/'},
+    {'id': 'radiosondy-meb801267', 'name': 'Radiosondy · Sonde MEB801267', 'category': 'Radiosondes météo', 'detail': 'Fiche de suivi d’une radiosonde météorologique · informations variables selon les données disponibles', 'url': 'https://radiosondy.info/sonde.php?sondenumber=MEB801267'},
+    {'id': 'radiosondy-meb801258', 'name': 'Radiosondy · Sonde MEB801258', 'category': 'Radiosondes météo', 'detail': 'Fiche de la deuxième radiosonde de Bordeaux · une trajectoire à la fois', 'url': 'https://radiosondy.info/sonde.php?sondenumber=MEB801258'},
+    {'id': 'radiosondy-global', 'name': 'Radiosondy · Carte mondiale', 'category': 'Radiosondes météo', 'detail': 'Suivi des ballons-sondes météorologiques et recherche par numéro de sonde', 'url': 'https://radiosondy.info/'},
     {'id': 'aprs-bordeaux', 'name': 'APRS.fi · Bordeaux', 'category': 'Suivi APRS', 'detail': 'Carte APRS centrée sur Bordeaux · balises et positions transmises par stations participantes ; pas un flux audio', 'url': 'https://aprs.fi/#!mt=roadmap&z=11&lat=44.83990&lng=-0.49290'},
     {'id': 'bordeaux-adsb', 'name': 'ADS-B Bordeaux · Suivi des avions', 'category': 'Suivi aérien', 'detail': 'Carte des avions détectés autour de Bordeaux · positions ADS-B, sans audio', 'url': 'https://adsb.websdrbordeaux.fr/?icao=4a8b28'},
     {'id': 'jfk', 'name': 'New York JFK · LiveATC', 'category': 'Aviation', 'detail': 'Tour, sol, approche · choisir LISTEN sur le site', 'url': 'https://www.liveatc.net/search/?icao=KJFK'},
@@ -105,7 +106,7 @@ class PatRadio(QMainWindow):
 
         filters = QHBoxLayout()
         self.category = QComboBox()
-        self.category.addItems(['Toutes les catégories', '⭐ Favoris', 'Radioamateurs', 'Aviation', 'Suivi aérien', 'Suivi APRS', 'Suivi météo', 'Marine', 'Radios du monde'])
+        self.category.addItems(['Toutes les catégories', '⭐ Favoris', 'Radioamateurs', 'Aviation', 'Suivi aérien', 'Suivi APRS', 'Radiosondes météo', 'Marine', 'Radios du monde'])
         self.category.currentIndexChanged.connect(self.refresh)
         filters.addWidget(self.category, 1)
         self.search = QLineEdit()
