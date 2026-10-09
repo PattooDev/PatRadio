@@ -50,6 +50,14 @@ STATIONS = [
     {"id": "heavens-above", "name": "Heavens-Above · Passages visibles", "category": "Suivi satellites", "detail": "ISS, satellites visibles et horaires de passage selon le lieu", "url": "https://www.heavens-above.com/main.aspx"},
     {"id": "satflare", "name": "Satflare · Trajectoires orbitales", "category": "Suivi satellites", "detail": "Cartes et visualisation des trajectoires de satellites", "url": "https://www.satflare.com/track.asp?cchart=1"},
     {"id": "satnogs", "name": "SatNOGS · Réseau radio satellite", "category": "Suivi satellites", "detail": "Observations radio de satellites par stations au sol", "url": "https://network.satnogs.org/"},
+    {"id": "blitzortung", "name": "Blitzortung · Orages et éclairs", "category": "Météo & orages", "detail": "Carte des impacts de foudre presque en temps réel", "url": "https://www.blitzortung.org/fr/live_lightning_maps.php"},
+    {"id": "windy", "name": "Windy · Météo mondiale", "category": "Météo & orages", "detail": "Vents, nuages, pluies et radar météorologique", "url": "https://www.windy.com/"},
+    {"id": "usgs-earthquakes", "name": "USGS · Séismes", "category": "Terre en activité", "detail": "Carte des tremblements de terre et magnitudes", "url": "https://earthquake.usgs.gov/earthquakes/map/"},
+    {"id": "nasa-firms", "name": "NASA FIRMS · Incendies", "category": "Terre en activité", "detail": "Points chauds et incendies détectés par satellite", "url": "https://firms.modaps.eosdis.nasa.gov/map/"},
+    {"id": "vesselfinder", "name": "VesselFinder · Navires", "category": "Navigation & océans", "detail": "Carte AIS des cargos, ferries et navires", "url": "https://www.vesselfinder.com/"},
+    {"id": "global-fishing-watch", "name": "Global Fishing Watch · Pêche", "category": "Navigation & océans", "detail": "Cartographie de l'activité de pêche mondiale", "url": "https://globalfishingwatch.org/our-map/"},
+    {"id": "nasa-eyes", "name": "NASA Eyes · Exploration spatiale", "category": "Exploration spatiale", "detail": "Visualisations 3D du système solaire et des missions", "url": "https://science.nasa.gov/eyes/"},
+    {"id": "noaa-aurora", "name": "NOAA · Prévisions d'aurores", "category": "Exploration spatiale", "detail": "Aurores polaires et activité géomagnétique", "url": "https://www.swpc.noaa.gov/products/aurora-30-minute-forecast"},
     {'id': 'jfk', 'name': 'New York JFK · LiveATC', 'category': 'Aviation', 'detail': 'Tour, sol, approche · choisir LISTEN sur le site', 'url': 'https://www.liveatc.net/search/?icao=KJFK'},
     {'id': 'atc', 'name': 'LiveATC · Tous les aéroports', 'category': 'Aviation', 'detail': 'Annuaire des communications aériennes', 'url': 'https://www.liveatc.net/feedindex.php'},
     {'id': 'marine-ny', 'name': 'Marine · New York / New Jersey', 'category': 'Marine', 'detail': 'Flux VHF maritime · disponibilité variable', 'url': 'https://www.broadcastify.com/listen/feed/17329'},
@@ -141,6 +149,8 @@ class PatRadio(QMainWindow):
             ('🛩', 'Suivi aérien'), ('📍', 'Suivi APRS'),
             ('🎈', 'Radiosondes météo'), ('🛰', 'Suivi satellites'),
             ('⚓', 'Marine'), ('🌍', 'Radios du monde'),
+            ('⛈', 'Météo & orages'), ('🌋', 'Terre en activité'),
+            ('🚢', 'Navigation & océans'), ('🌌', 'Exploration spatiale'),
         ]
         for index, (symbol, category) in enumerate(universes):
             button = QPushButton(f'{symbol}  {category}')
