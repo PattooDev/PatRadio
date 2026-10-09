@@ -28,6 +28,7 @@ def config_directory():
 CONFIG_DIR = config_directory()
 CONFIG_FILE = CONFIG_DIR / 'favorites.json'
 STATIONS = [
+    {'id': 'bordeaux', 'name': 'WebSDR Bordeaux', 'category': 'Radioamateurs', 'detail': 'Récepteur radioamateur de Bordeaux · accès public (disponibilité à vérifier)', 'url': 'http://ham.websdrbordeaux.fr:8000/'},
     {'id': 'twente', 'name': 'WebSDR Twente', 'category': 'Radioamateurs', 'detail': 'Ondes courtes · Récepteur aux Pays-Bas', 'url': 'http://websdr.ewi.utwente.nl:8901/'},
     {'id': 'twente7120', 'name': 'Twente · 7 120 kHz LSB', 'category': 'Radioamateurs', 'detail': 'Fréquence testée · voix en LSB', 'url': 'http://websdr.ewi.utwente.nl:8901/?tune=7120lsb'},
     {'id': 'twente14200', 'name': 'Twente · 14 200 kHz USB', 'category': 'Radioamateurs', 'detail': 'Bande des 20 mètres · USB', 'url': 'http://websdr.ewi.utwente.nl:8901/?tune=14200usb'},
