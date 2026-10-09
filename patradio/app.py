@@ -5,6 +5,7 @@ import os
 import sys
 import webbrowser
 from pathlib import Path
+from html import escape
 from urllib.parse import urlparse
 
 from PyQt6.QtCore import Qt
@@ -13,7 +14,7 @@ from PyQt6.QtCore import QUrl
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QListWidget, QListWidgetItem, QLineEdit, QComboBox,
-    QMessageBox, QFrame
+    QMessageBox, QFrame, QStatusBar
 )
 
 APP_NAME = 'PatRadio'
@@ -42,6 +43,9 @@ STATIONS = [
     {'id': 'radiosondy-global', 'name': 'Radiosondy · Carte mondiale', 'category': 'Radiosondes météo', 'detail': 'Suivi des ballons-sondes météorologiques et recherche par numéro de sonde', 'url': 'https://radiosondy.info/'},
     {'id': 'aprs-bordeaux', 'name': 'APRS.fi · Bordeaux', 'category': 'Suivi APRS', 'detail': 'Carte APRS centrée sur Bordeaux · balises et positions transmises par stations participantes ; pas un flux audio', 'url': 'https://aprs.fi/#!mt=roadmap&z=11&lat=44.83990&lng=-0.49290'},
     {'id': 'bordeaux-adsb', 'name': 'ADS-B Bordeaux · Suivi des avions', 'category': 'Suivi aérien', 'detail': 'Carte des avions détectés autour de Bordeaux · positions ADS-B, sans audio', 'url': 'https://adsb.websdrbordeaux.fr/?icao=4a8b28'},
+    {"id":"flightradar24","name":"Flightradar24","category":"Aviation","detail":"Carte mondiale des vols · certaines fonctions limitées","url":"https://www.flightradar24.com/"},
+    {"id":"airplaneslive","name":"Airplanes.live","category":"Aviation","detail":"Suivi ADS-B communautaire · carte du trafic aérien","url":"https://airplanes.live/"},
+    {"id":"adsbexchange","name":"ADS-B Exchange","category":"Aviation","detail":"Carte ADS-B mondiale avec filtres avancés","url":"https://globe.adsbexchange.com/"},
     {'id': 'jfk', 'name': 'New York JFK · LiveATC', 'category': 'Aviation', 'detail': 'Tour, sol, approche · choisir LISTEN sur le site', 'url': 'https://www.liveatc.net/search/?icao=KJFK'},
     {'id': 'atc', 'name': 'LiveATC · Tous les aéroports', 'category': 'Aviation', 'detail': 'Annuaire des communications aériennes', 'url': 'https://www.liveatc.net/feedindex.php'},
     {'id': 'marine-ny', 'name': 'Marine · New York / New Jersey', 'category': 'Marine', 'detail': 'Flux VHF maritime · disponibilité variable', 'url': 'https://www.broadcastify.com/listen/feed/17329'},
@@ -88,75 +92,115 @@ class PatRadio(QMainWindow):
         super().__init__()
         self.favorites = load_favorites()
         self.visible_stations = []
-        self.setWindowTitle('PatRadio v0.3 — Centre d’écoute mondial')
-        self.resize(860, 630)
-        self.setMinimumSize(650, 490)
-        container = QWidget()
-        self.setCentralWidget(container)
-        root = QVBoxLayout(container)
-        root.setContentsMargins(25, 22, 25, 18)
-        root.setSpacing(14)
+        self.setWindowTitle('PatRadio v0.4 — Centre d’exploration mondial')
+        self.resize(1080, 730)
+        self.setMinimumSize(740, 540)
+        central = QWidget()
+        self.setCentralWidget(central)
+        root = QVBoxLayout(central)
+        root.setContentsMargins(20, 20, 20, 14)
+        root.setSpacing(12)
 
-        title = QLabel('📻  PatRadio')
+        hero = QFrame()
+        hero.setObjectName('hero')
+        banner = QVBoxLayout(hero)
+        banner.setContentsMargins(26, 21, 26, 20)
+        title = QLabel('◉  PatRadio')
         title.setObjectName('title')
-        root.addWidget(title)
-        subtitle = QLabel('Ton centre d’écoute mondial · Linux / Windows / macOS · 100 % gratuit')
-        subtitle.setObjectName('subtitle')
-        root.addWidget(subtitle)
+        banner.addWidget(title)
+        intro = QLabel('LE MONDE À PORTÉE D’OREILLE   •   RADIO  /  AVIATION  /  MARINE  /  CARTES')
+        intro.setObjectName('intro')
+        intro.setWordWrap(True)
+        banner.addWidget(intro)
+        stats = QHBoxLayout()
+        self.stats_label = QLabel()
+        self.stats_label.setObjectName('stats')
+        stats.addWidget(self.stats_label)
+        stats.addStretch()
+        banner.addLayout(stats)
+        root.addWidget(hero)
 
-        filters = QHBoxLayout()
+        filters = QFrame()
+        filters.setObjectName('panel')
+        bar = QHBoxLayout(filters)
+        bar.setContentsMargins(15, 12, 15, 12)
         self.category = QComboBox()
         self.category.addItems(['Toutes les catégories', '⭐ Favoris', 'Radioamateurs', 'Aviation', 'Suivi aérien', 'Suivi APRS', 'Radiosondes météo', 'Marine', 'Radios du monde'])
         self.category.currentIndexChanged.connect(self.refresh)
-        filters.addWidget(self.category, 1)
+        bar.addWidget(self.category, 2)
         self.search = QLineEdit()
-        self.search.setPlaceholderText('Rechercher une station…')
+        self.search.setPlaceholderText('⌕  Rechercher une station, une fréquence, un avion…')
         self.search.textChanged.connect(self.refresh)
-        filters.addWidget(self.search, 2)
-        root.addLayout(filters)
+        bar.addWidget(self.search, 3)
+        root.addWidget(filters)
 
+        panes = QHBoxLayout()
+        panes.setSpacing(12)
+        root.addLayout(panes, 1)
+        left = QFrame()
+        left.setObjectName('panel')
+        ll = QVBoxLayout(left)
+        ll.setContentsMargins(15, 15, 15, 15)
+        heading = QLabel('EXPLORER LES STATIONS')
+        heading.setObjectName('section')
+        ll.addWidget(heading)
         self.list = QListWidget()
-        self.list.setAlternatingRowColors(True)
         self.list.currentRowChanged.connect(self.update_details)
         self.list.itemDoubleClicked.connect(lambda _: self.open_selected())
-        root.addWidget(self.list, 1)
+        ll.addWidget(self.list, 1)
+        panes.addWidget(left, 3)
 
-        self.detail = QLabel('Choisis une station pour afficher ses informations.')
-        self.detail.setWordWrap(True)
+        right = QFrame()
+        right.setObjectName('panel')
+        rr = QVBoxLayout(right)
+        rr.setContentsMargins(18, 16, 18, 18)
+        label = QLabel('DÉTAILS & ACCÈS')
+        label.setObjectName('section')
+        rr.addWidget(label)
+        self.detail = QLabel('Sélectionne une station pour la découvrir.')
         self.detail.setObjectName('detail')
-        root.addWidget(self.detail)
-
-        actions = QHBoxLayout()
-        self.open_button = QPushButton('▶  Ouvrir dans le navigateur')
+        self.detail.setWordWrap(True)
+        self.detail.setTextFormat(Qt.TextFormat.RichText)
+        rr.addWidget(self.detail, 1)
+        self.open_button = QPushButton('↗  Ouvrir dans le navigateur')
         self.open_button.setObjectName('primary')
         self.open_button.clicked.connect(self.open_selected)
-        actions.addWidget(self.open_button)
+        rr.addWidget(self.open_button)
         self.favorite_button = QPushButton('☆  Ajouter aux favoris')
         self.favorite_button.clicked.connect(self.toggle_favorite)
-        actions.addWidget(self.favorite_button)
-        root.addLayout(actions)
+        rr.addWidget(self.favorite_button)
+        hint = QLabel('Double-clic pour ouvrir · Les sites externes peuvent parfois être indisponibles.')
+        hint.setObjectName('hint')
+        hint.setWordWrap(True)
+        rr.addWidget(hint)
+        panes.addWidget(right, 2)
 
-        note = QLabel('Les flux sont fournis par des sites tiers : aucune réception radio locale ni disponibilité garantie.')
-        note.setWordWrap(True)
-        note.setObjectName('subtitle')
-        root.addWidget(note)
-        self.statusBar().showMessage('Prêt · Double-clique sur une station pour l’ouvrir')
-        self.setStyleSheet('''
-          QMainWindow, QWidget { background:#101923; color:#e4eef5; font-size:14px; }
-          QLabel#title { font-size:32px; font-weight:800; color:#44d1e6; }
-          QLabel#subtitle { color:#9db3c4; font-size:12px; }
-          QLabel#detail { background:#1b2936; border:1px solid #304454; border-radius:9px; padding:12px; }
-          QComboBox, QLineEdit, QListWidget { background:#192634; color:#eaf5fc; border:1px solid #375065; border-radius:8px; padding:8px; }
-          QListWidget::item { padding:13px; border-bottom:1px solid #2a3b4c; }
-          QListWidget::item:selected { background:#195269; color:white; }
-          QListWidget::item:alternate { background:#14212d; }
-          QComboBox QAbstractItemView { background:#192634; color:white; selection-background-color:#195269; }
-          QPushButton { background:#263c4b; color:#edf8ff; padding:12px; border:1px solid #456176; border-radius:8px; font-weight:600; }
-          QPushButton#primary { background:#067a91; border-color:#159fb9; }
-          QPushButton:hover { background:#36718a; }
-          QPushButton:disabled { color:#698191; background:#202c36; }
-          QStatusBar { color:#97b1bf; }
-        ''')
+        self.statusBar().showMessage('Prêt • Explore le monde depuis ton ordinateur')
+        self.setStyleSheet("""
+            QMainWindow, QWidget { background:#081321; color:#e9f2fa; font-size:14px; }
+            QFrame#hero { background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #10243d,stop:1 #195678);
+                border:1px solid #2c627f; border-radius:18px; }
+            QLabel#title { font-size:36px; font-weight:800; color:#f0fbff; background:transparent; }
+            QLabel#intro { font-size:12px; font-weight:700; letter-spacing:1px; color:#aee9f7; background:transparent; }
+            QLabel#stats { font-size:13px; color:#a4ffdf; background:transparent; padding-top:6px; }
+            QFrame#panel { background:#102033; border:1px solid #28435b; border-radius:15px; }
+            QLabel#section { color:#76dbef; font-weight:800; font-size:13px; padding:5px; background:transparent; }
+            QListWidget, QLineEdit, QComboBox { background:#0b1a2b; color:#f0f8ff;
+                border:1px solid #31536e; border-radius:9px; padding:9px; }
+            QListWidget::item { padding:12px; margin:3px 0; border-radius:7px; }
+            QListWidget::item:selected { background:#1b5e79; color:white; }
+            QComboBox QAbstractItemView { background:#102033; color:white; selection-background-color:#1b5e79; }
+            QLabel#detail { color:#d7eaf5; background:#0c192a; border:1px solid #28435b;
+                border-radius:12px; padding:16px; }
+            QLabel#hint { color:#8daabe; font-size:12px; background:transparent; }
+            QPushButton { background:#20374e; color:white; border:1px solid #426580;
+                border-radius:9px; padding:13px; font-weight:700; }
+            QPushButton#primary { background:#087f9c; border-color:#39cee7; }
+            QPushButton:hover { background:#2b5771; }
+            QPushButton#primary:hover { background:#069abd; }
+            QPushButton:disabled { color:#72899a; background:#1a2a39; }
+            QStatusBar { background:#081321; color:#8ab5cc; }
+        """)
         self.refresh()
 
     def selected(self):
@@ -164,34 +208,50 @@ class PatRadio(QMainWindow):
         return self.visible_stations[i] if 0 <= i < len(self.visible_stations) else None
 
     def refresh(self):
-        previous = self.selected()
-        prev_id = previous['id'] if previous else None
+        old = self.selected()
+        previous_id = old['id'] if old else None
         category = self.category.currentText()
-        search = self.search.text().casefold().strip()
-        self.visible_stations = [s for s in STATIONS if
-            (category == 'Toutes les catégories' or
-             (category == '⭐ Favoris' and s['id'] in self.favorites) or
-             s['category'] == category) and
-            search in (' '.join((s['name'], s['category'], s['detail']))).casefold()]
+        query = self.search.text().casefold().strip()
+        self.visible_stations = [
+            station for station in STATIONS
+            if (category == 'Toutes les catégories'
+                or (category == '⭐ Favoris' and station['id'] in self.favorites)
+                or station['category'] == category)
+            and query in (' '.join((station['name'], station['category'], station['detail']))).casefold()
+        ]
+        self.list.blockSignals(True)
         self.list.clear()
-        for s in self.visible_stations:
-            icon = '★' if s['id'] in self.favorites else '☆'
-            self.list.addItem(QListWidgetItem(f"{icon}   {s['name']}    ·    {s['category']}"))
-        index = next((i for i, s in enumerate(self.visible_stations) if s['id'] == prev_id), 0)
+        for station in self.visible_stations:
+            star = '★' if station['id'] in self.favorites else '☆'
+            self.list.addItem(QListWidgetItem(f"{star}   {station['name']}\n      {station['category']}  ·  {station['detail']}"))
+        selected_index = next((i for i, item in enumerate(self.visible_stations) if item['id'] == previous_id), 0)
         if self.visible_stations:
-            self.list.setCurrentRow(index)
+            self.list.setCurrentRow(selected_index)
+        self.list.blockSignals(False)
+        self.stats_label.setText(
+            f"◉  {len(STATIONS)} raccourcis      ✦  {len(set(x['category'] for x in STATIONS))} univers      ★  {len(self.favorites)} favoris")
         self.update_details()
 
     def update_details(self, *_):
         station = self.selected()
         self.open_button.setEnabled(bool(station))
         self.favorite_button.setEnabled(bool(station))
-        if station:
-            self.detail.setText(f"{station['name']}\n{station['detail']}\n{station['url']}")
-            self.favorite_button.setText('★  Retirer des favoris' if station['id'] in self.favorites else '☆  Ajouter aux favoris')
-        else:
-            self.detail.setText('Aucune station trouvée.')
+        if not station:
+            self.detail.setText('Aucune station trouvée. Modifie ta recherche.')
             self.favorite_button.setText('☆  Ajouter aux favoris')
+            return
+        name = escape(station['name'])
+        category = escape(station['category'])
+        detail = escape(station['detail'])
+        address = escape(station['url'])
+        self.detail.setText(
+            f"<p style='font-size:21px;color:#ffffff;font-weight:700'>{name}</p>"
+            f"<p style='color:#72dded'>{category}</p>"
+            f"<p style='color:#d4e6f4'>{detail}</p>"
+            f"<p style='font-size:11px;color:#87aabc;overflow-wrap:anywhere'>{address}</p>"
+        )
+        self.favorite_button.setText(
+            '★  Retirer des favoris' if station['id'] in self.favorites else '☆  Ajouter aux favoris')
 
     def toggle_favorite(self):
         station = self.selected()
