@@ -42,3 +42,19 @@ PatRadio n'est pas un récepteur SDR local. Il dépend des sites externes, de le
 
 ## Licence
 © 2026 Patrick « Pattoo » Ventresque (PattooDev). GNU GPL version 3 ou ultérieure. Voir [LICENSE](LICENSE).
+
+
+## PatRadio v0.4 — Interface cockpit et fusion complète
+
+Cette mise à jour apporte une interface sombre modernisée : bandeau de présentation, compteurs de stations/catégories/favoris, recherche et panneau de détails.
+
+Le catalogue comprend **36 entrées**, dont :
+- Les récepteurs WebSDR Twente, WebSDR Bordeaux et OpenWebRX Bordeaux.
+- Les fréquences HF préréglées et les repères manuels Bordeaux.
+- Les cartes **Flightradar24**, **Airplanes.live** et **ADS-B Exchange** dans **Aviation**.
+- ADS-B Bordeaux en suivi aérien, APRS.fi Bordeaux, et Radiosondy (MEB801267 / MEB801258 et portail général).
+- Les flux maritimes et radios du monde.
+
+Les favoris restent enregistrés aux mêmes emplacements et utilisent les mêmes identifiants que les versions précédentes. Sur Linux, le lanceur existant peut continuer à servir ; remplacer uniquement `~/.local/share/patradio/app.py` après sauvegarde. Pour Windows, une nouvelle compilation PyInstaller est nécessaire afin d'inclure cette version dans l'EXE.
+
+La modification du code est publiée, mais cette interface doit encore être vérifiée visuellement sur un poste équipé de PyQt6.
