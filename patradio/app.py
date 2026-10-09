@@ -14,7 +14,7 @@ from PyQt6.QtCore import QUrl
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QListWidget, QListWidgetItem, QLineEdit, QComboBox,
-    QMessageBox, QFrame, QStatusBar
+    QMessageBox, QFrame, QStatusBar, QGridLayout
 )
 
 APP_NAME = 'PatRadio'
@@ -96,6 +96,8 @@ class PatRadio(QMainWindow):
         super().__init__()
         self.favorites = load_favorites()
         self.visible_stations = []
+        self.active_category = 'Toutes les catégories'
+        self.category_buttons = {}
         self.setWindowTitle('PatRadio v0.4 — Centre d’exploration mondial')
         self.resize(1080, 730)
         self.setMinimumSize(740, 540)
@@ -124,19 +126,46 @@ class PatRadio(QMainWindow):
         banner.addLayout(stats)
         root.addWidget(hero)
 
-        filters = QFrame()
-        filters.setObjectName('panel')
-        bar = QHBoxLayout(filters)
-        bar.setContentsMargins(15, 12, 15, 12)
-        self.category = QComboBox()
-        self.category.addItems(['Toutes les catégories', '⭐ Favoris', 'Radioamateurs', 'Aviation', 'Suivi aérien', 'Suivi APRS', 'Radiosondes météo', 'Suivi satellites', 'Marine', 'Radios du monde'])
-        self.category.currentIndexChanged.connect(self.refresh)
-        bar.addWidget(self.category, 2)
+        universe_panel = QFrame()
+        universe_panel.setObjectName('panel')
+        universe_layout = QVBoxLayout(universe_panel)
+        universe_layout.setContentsMargins(15, 13, 15, 13)
+        universe_layout.setSpacing(9)
+        universe_heading = QLabel('CHOISIS TON UNIVERS')
+        universe_heading.setObjectName('section')
+        universe_layout.addWidget(universe_heading)
+        universe_grid = QGridLayout()
+        universe_grid.setSpacing(8)
+        universes = [
+            ('📡', 'Radioamateurs'), ('✈', 'Aviation'),
+            ('🛩', 'Suivi aérien'), ('📍', 'Suivi APRS'),
+            ('🎈', 'Radiosondes météo'), ('🛰', 'Suivi satellites'),
+            ('⚓', 'Marine'), ('🌍', 'Radios du monde'),
+        ]
+        for index, (symbol, category) in enumerate(universes):
+            button = QPushButton(f'{symbol}  {category}')
+            button.setObjectName('universe')
+            button.setCheckable(True)
+            button.setMinimumHeight(40)
+            button.clicked.connect(lambda checked=False, name=category: self.set_category(name))
+            universe_grid.addWidget(button, index // 4, index % 4)
+            self.category_buttons[category] = button
+        universe_layout.addLayout(universe_grid)
+        tools_bar = QHBoxLayout()
+        self.all_button = QPushButton('Tout voir')
+        self.all_button.setObjectName('quick')
+        self.all_button.clicked.connect(lambda: self.set_category('Toutes les catégories'))
+        tools_bar.addWidget(self.all_button)
+        self.fav_filter_button = QPushButton('★ Favoris')
+        self.fav_filter_button.setObjectName('quick')
+        self.fav_filter_button.clicked.connect(lambda: self.set_category('⭐ Favoris'))
+        tools_bar.addWidget(self.fav_filter_button)
         self.search = QLineEdit()
-        self.search.setPlaceholderText('⌕  Rechercher une station, une fréquence, un avion…')
+        self.search.setPlaceholderText('⌕  Rechercher dans les stations…')
         self.search.textChanged.connect(self.refresh)
-        bar.addWidget(self.search, 3)
-        root.addWidget(filters)
+        tools_bar.addWidget(self.search, 1)
+        universe_layout.addLayout(tools_bar)
+        root.addWidget(universe_panel)
 
         panes = QHBoxLayout()
         panes.setSpacing(12)
@@ -145,7 +174,8 @@ class PatRadio(QMainWindow):
         left.setObjectName('panel')
         ll = QVBoxLayout(left)
         ll.setContentsMargins(15, 15, 15, 15)
-        heading = QLabel('EXPLORER LES STATIONS')
+        heading = QLabel('RADIOAMATEURS')
+        self.list_heading = heading
         heading.setObjectName('section')
         ll.addWidget(heading)
         self.list = QListWidget()
@@ -202,6 +232,11 @@ class PatRadio(QMainWindow):
             QPushButton#primary { background:#087f9c; border-color:#39cee7; }
             QPushButton:hover { background:#2b5771; }
             QPushButton#primary:hover { background:#069abd; }
+            QPushButton#universe { background:#142c43; border:1px solid #345570; padding:9px 5px; }
+            QPushButton#universe:checked { background:#176783; border:2px solid #64d8ed; color:white; }
+            QPushButton#universe:hover { background:#235370; }
+            QPushButton#quick { padding:9px 14px; }
+            QPushButton#quick[active='true'] { background:#176783; border:1px solid #64d8ed; }
             QPushButton:disabled { color:#72899a; background:#1a2a39; }
             QStatusBar { background:#081321; color:#8ab5cc; }
         """)
@@ -211,10 +246,14 @@ class PatRadio(QMainWindow):
         i = self.list.currentRow()
         return self.visible_stations[i] if 0 <= i < len(self.visible_stations) else None
 
+    def set_category(self, category):
+        self.active_category = category
+        self.refresh()
+
     def refresh(self):
         old = self.selected()
         previous_id = old['id'] if old else None
-        category = self.category.currentText()
+        category = self.active_category
         query = self.search.text().casefold().strip()
         self.visible_stations = [
             station for station in STATIONS
@@ -223,6 +262,14 @@ class PatRadio(QMainWindow):
                 or station['category'] == category)
             and query in (' '.join((station['name'], station['category'], station['detail']))).casefold()
         ]
+        self.list_heading.setText(category.upper() if category != 'Toutes les catégories' else 'TOUS LES UNIVERS')
+        for name, button in self.category_buttons.items():
+            button.setChecked(name == category)
+        self.all_button.setProperty('active', category == 'Toutes les catégories')
+        self.fav_filter_button.setProperty('active', category == '⭐ Favoris')
+        for button in (self.all_button, self.fav_filter_button):
+            button.style().unpolish(button)
+            button.style().polish(button)
         self.list.blockSignals(True)
         self.list.clear()
         for station in self.visible_stations:
