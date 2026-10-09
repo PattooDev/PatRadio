@@ -28,6 +28,9 @@ def config_directory():
 CONFIG_DIR = config_directory()
 CONFIG_FILE = CONFIG_DIR / 'favorites.json'
 STATIONS = [
+    {'id': 'bordeaux7100', 'name': 'Bordeaux · 7 100 kHz LSB (manuel)', 'category': 'Radioamateurs', 'detail': '40 mètres · régler manuellement 7100 kHz en LSB dans le WebSDR Bordeaux (aucun préréglage automatique)', 'url': 'http://ham.websdrbordeaux.fr:8000/'},
+    {'id': 'bordeaux3605', 'name': 'Bordeaux · 3 605 kHz LSB (manuel)', 'category': 'Radioamateurs', 'detail': '80 mètres · fréquence de conversations parfois signalées ; régler manuellement 3605 kHz en LSB', 'url': 'http://ham.websdrbordeaux.fr:8000/'},
+    {'id': 'bordeaux14250', 'name': 'Bordeaux · 14 250 kHz USB (manuel)', 'category': 'Radioamateurs', 'detail': '20 mètres · régler manuellement 14250 kHz en USB ; réception et couverture variables', 'url': 'http://ham.websdrbordeaux.fr:8000/'},
     {'id': 'bordeaux', 'name': 'WebSDR Bordeaux', 'category': 'Radioamateurs', 'detail': 'Récepteur radioamateur de Bordeaux · accès public (disponibilité à vérifier)', 'url': 'http://ham.websdrbordeaux.fr:8000/'},
     {'id': 'twente', 'name': 'WebSDR Twente', 'category': 'Radioamateurs', 'detail': 'Ondes courtes · Récepteur aux Pays-Bas', 'url': 'http://websdr.ewi.utwente.nl:8901/'},
     {'id': 'twente7120', 'name': 'Twente · 7 120 kHz LSB', 'category': 'Radioamateurs', 'detail': 'Fréquence testée · voix en LSB', 'url': 'http://websdr.ewi.utwente.nl:8901/?tune=7120lsb'},
