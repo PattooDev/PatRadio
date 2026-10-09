@@ -37,6 +37,7 @@ STATIONS = [
     {'id': 'twente7120', 'name': 'Twente · 7 120 kHz LSB', 'category': 'Radioamateurs', 'detail': 'Fréquence testée · voix en LSB', 'url': 'http://websdr.ewi.utwente.nl:8901/?tune=7120lsb'},
     {'id': 'twente14200', 'name': 'Twente · 14 200 kHz USB', 'category': 'Radioamateurs', 'detail': 'Bande des 20 mètres · USB', 'url': 'http://websdr.ewi.utwente.nl:8901/?tune=14200usb'},
     {'id': 'websdr', 'name': 'Annuaire WebSDR', 'category': 'Radioamateurs', 'detail': 'Récepteurs publics disponibles dans le monde', 'url': 'https://www.websdr.org/'},
+    {'id': 'bordeaux-adsb', 'name': 'ADS-B Bordeaux · Suivi des avions', 'category': 'Suivi aérien', 'detail': 'Carte des avions détectés autour de Bordeaux · positions ADS-B, sans audio', 'url': 'https://adsb.websdrbordeaux.fr/?icao=4a8b28'},
     {'id': 'jfk', 'name': 'New York JFK · LiveATC', 'category': 'Aviation', 'detail': 'Tour, sol, approche · choisir LISTEN sur le site', 'url': 'https://www.liveatc.net/search/?icao=KJFK'},
     {'id': 'atc', 'name': 'LiveATC · Tous les aéroports', 'category': 'Aviation', 'detail': 'Annuaire des communications aériennes', 'url': 'https://www.liveatc.net/feedindex.php'},
     {'id': 'marine-ny', 'name': 'Marine · New York / New Jersey', 'category': 'Marine', 'detail': 'Flux VHF maritime · disponibilité variable', 'url': 'https://www.broadcastify.com/listen/feed/17329'},
@@ -101,7 +102,7 @@ class PatRadio(QMainWindow):
 
         filters = QHBoxLayout()
         self.category = QComboBox()
-        self.category.addItems(['Toutes les catégories', '⭐ Favoris', 'Radioamateurs', 'Aviation', 'Marine', 'Radios du monde'])
+        self.category.addItems(['Toutes les catégories', '⭐ Favoris', 'Radioamateurs', 'Aviation', 'Suivi aérien', 'Marine', 'Radios du monde'])
         self.category.currentIndexChanged.connect(self.refresh)
         filters.addWidget(self.category, 1)
         self.search = QLineEdit()
