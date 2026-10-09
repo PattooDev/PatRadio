@@ -46,6 +46,10 @@ STATIONS = [
     {"id":"flightradar24","name":"Flightradar24","category":"Aviation","detail":"Carte mondiale des vols · certaines fonctions limitées","url":"https://www.flightradar24.com/"},
     {"id":"airplaneslive","name":"Airplanes.live","category":"Aviation","detail":"Suivi ADS-B communautaire · carte du trafic aérien","url":"https://airplanes.live/"},
     {"id":"adsbexchange","name":"ADS-B Exchange","category":"Aviation","detail":"Carte ADS-B mondiale avec filtres avancés","url":"https://globe.adsbexchange.com/"},
+    {"id": "n2yo", "name": "N2YO · Suivi des satellites", "category": "Suivi satellites", "detail": "Position orbitale, carte et prévisions de passage", "url": "https://www.n2yo.com/"},
+    {"id": "heavens-above", "name": "Heavens-Above · Passages visibles", "category": "Suivi satellites", "detail": "ISS, satellites visibles et horaires de passage selon le lieu", "url": "https://www.heavens-above.com/main.aspx"},
+    {"id": "satflare", "name": "Satflare · Trajectoires orbitales", "category": "Suivi satellites", "detail": "Cartes et visualisation des trajectoires de satellites", "url": "https://www.satflare.com/track.asp?cchart=1"},
+    {"id": "satnogs", "name": "SatNOGS · Réseau radio satellite", "category": "Suivi satellites", "detail": "Observations radio de satellites par stations au sol", "url": "https://network.satnogs.org/"},
     {'id': 'jfk', 'name': 'New York JFK · LiveATC', 'category': 'Aviation', 'detail': 'Tour, sol, approche · choisir LISTEN sur le site', 'url': 'https://www.liveatc.net/search/?icao=KJFK'},
     {'id': 'atc', 'name': 'LiveATC · Tous les aéroports', 'category': 'Aviation', 'detail': 'Annuaire des communications aériennes', 'url': 'https://www.liveatc.net/feedindex.php'},
     {'id': 'marine-ny', 'name': 'Marine · New York / New Jersey', 'category': 'Marine', 'detail': 'Flux VHF maritime · disponibilité variable', 'url': 'https://www.broadcastify.com/listen/feed/17329'},
@@ -125,7 +129,7 @@ class PatRadio(QMainWindow):
         bar = QHBoxLayout(filters)
         bar.setContentsMargins(15, 12, 15, 12)
         self.category = QComboBox()
-        self.category.addItems(['Toutes les catégories', '⭐ Favoris', 'Radioamateurs', 'Aviation', 'Suivi aérien', 'Suivi APRS', 'Radiosondes météo', 'Marine', 'Radios du monde'])
+        self.category.addItems(['Toutes les catégories', '⭐ Favoris', 'Radioamateurs', 'Aviation', 'Suivi aérien', 'Suivi APRS', 'Radiosondes météo', 'Suivi satellites', 'Marine', 'Radios du monde'])
         self.category.currentIndexChanged.connect(self.refresh)
         bar.addWidget(self.category, 2)
         self.search = QLineEdit()
