@@ -9,6 +9,7 @@ fi
 TARGET="${HOME}/.local/share/patradio"
 mkdir -p "$TARGET" "${HOME}/.local/bin" "${HOME}/.local/share/applications"
 cp patradio/app.py "$TARGET/app.py"
+cp patradio/control_center.py "$TARGET/control_center.py"
 cat > "${HOME}/.local/bin/patradio" <<'EOF'
 #!/usr/bin/env bash
 exec /usr/bin/python3 "${HOME}/.local/share/patradio/app.py" "$@"
