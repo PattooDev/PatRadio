@@ -175,6 +175,10 @@ class PatRadio(QMainWindow):
         self.search.textChanged.connect(self.refresh)
         tools_bar.addWidget(self.search, 1)
         universe_layout.addLayout(tools_bar)
+        self.control_button = QPushButton('◉  CENTRE DE CONTRÔLE · AVIONS EN DIRECT')
+        self.control_button.setObjectName('primary')
+        self.control_button.clicked.connect(self.open_control_center)
+        universe_layout.addWidget(self.control_button)
         root.addWidget(universe_panel)
 
         panes = QHBoxLayout()
@@ -251,6 +255,18 @@ class PatRadio(QMainWindow):
             QStatusBar { background:#081321; color:#8ab5cc; }
         """)
         self.refresh()
+
+    def open_control_center(self):
+        try:
+            from control_center import ControlCenter
+        except ImportError as exc:
+            QMessageBox.warning(self, 'PatRadio', f'Module Centre de contrôle indisponible : {exc}')
+            return
+        if not hasattr(self, '_control_center'):
+            self._control_center = ControlCenter(self)
+        self._control_center.show()
+        self._control_center.raise_()
+        self._control_center.activateWindow()
 
     def selected(self):
         i = self.list.currentRow()
